@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+  <meta charset='utf-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1'>
+  <title>VARSTok – Say More with Less</title>
+
+  <!-- 原有样式表 & 脚本 -->
+  <link rel='stylesheet' href='css/fontawesome.all.min.css'>
+  <link rel='stylesheet' href='css/bootstrap.css'>
+  <link rel='stylesheet' href='fonts/font-awesome/css/font-awesome.css'>
+  <link rel='stylesheet' href='css/style.css'>
+  <link href='https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro' rel='stylesheet'>
+  <script src='js/modernizr.custom.js'></script>
+
+  <!-- ★ 响应式 & 音频块专用样式 ★ -->
+  <style>
+    /* 让版心随屏幕宽度自适应 */
+    .container, .inner {max-width: 100%;}
+
+    /* 让大表格在小屏横向滚动，而不是撑大整个页面 */
+    .table-wrap {overflow-x: auto;}
+
+    /* ======== 音频单元格 ======== */
+    .audio-cell {
+      width: 12.5%;              /* 8 列刚好 100% */
+      text-align: center;
+      padding: 10px;
+      color: black;
+    }
+    /* ——— 播放器大小策略 ———
+       1) 默认：占单元格 90%，最大 260 px → 大屏更饱满
+       2) Retina/4K 仍保持 260 px 上限，可按需调大
+       3) 窄屏 <992px：100% 宽
+    */
+    .audio-cell audio {
+      width: 90%;
+      max-width: 260px;
+    }
+
+    /* 中等分辨率可适当收紧 */
+    @media (max-width: 1400px) {
+      .audio-cell audio {max-width: 220px;}
+    }
+
+    /* 窄屏（<992px）改成两列一行，播放器全宽 */
+    @media (max-width: 992px) {
+      .audio-cell {width: 50%;}
+      .audio-cell audio {width: 100%;}
+    }
+  </style>
+</head>
+
+<body>
+  <div class='container'>
+    <div class='section-title text-center center'>
+      <h1 style='color:black'><strong><br><br>Say More with Less: Variable‑Frame‑Rate Speech Tokenization<br>via Adaptive Clustering and Implicit Duration Coding</strong></h1>
+      <br><br>
+      <span style='color:black; font-size:16px;'>Anonymous Author(s).</span>
+    </div>
+
+    <div class='portfolio-item text-center'>
+      <img src='img/VARSTok-overview.png' class='img-responsive' alt='VARSTok'>
+    </div>
+
+    <!-- 说明文字保留 -->
+    <div class='row'>
+      <div class='col-md-10 col-md-offset-1'>
+        <p style='color:black; font-family:Sans-Serif; font-size:18px;'>
+          Current speech tokenizers typically assign a fixed number of tokens per second, regardless of the varying information density or temporal fluctuations in the speech signal.
+          This uniform token allocation mismatches the intrinsic structure of speech, where information is distributed unevenly over time.
+          To address this, we propose <b>VARSTok</b>, a <b>VA</b>riable-frame-<b>R</b>ate <b>S</b>peech <b>Tok</b>enizer that adapts token allocation based on local feature similarity.
+          VARSTok introduces a temporal-aware clustering algorithm that segments speech into variable-length units, followed by vector quantization.
+          To support downstream language modeling without auxiliary duration predictors, we further design an implicit duration encoding scheme that integrates both content and temporal span into a single token index.
+          Experimental results show that VARSTok achieves superior reconstruction naturalness and improved semantic representation compared to fixed-rate baselines while using fewer tokens.
+          Additionally, it yields lower or comparable word error rates and better naturalness in downstream text-to-speech task.
+          To the best of our knowledge, this is the first work to demonstrate that fully dynamic, variable-rate speech tokenizer can be directly and effectively integrated into downstream speech language models.
+        </p>
+        <hr><br><br>
+      </div>
+    </div>
+  </div>
+
+  <div class='inner text-center'>
+    <p style='color:black; font-family:Sans-Serif; font-size:32px;'>Experimental Results: Speech Reconstruction</p>
+    <p style='color:black; font-family:Sans-Serif; font-size:20px;'>Test‑Clean Subset</p>
+
+    <div class='table-wrap'>
+      <table border='0' cellpadding='20' style='width:100%; table-layout:fixed;'>
+        <thead>
+          <tr>
+            <th class='audio-cell'>GroundTruth</th>
+            <th class='audio-cell'>BigCodec <br> @ 40Hz, 0.52 kbps</th>
+            <th class='audio-cell'>XCodec2.0 <br> @ 50Hz, 0.80 kbps</th>
+            <th class='audio-cell'>WavTokenizer <br> @ 75Hz, 0.90 kbps</th>
+            <th class='audio-cell'>WavTokenizer <br> @ 40Hz, 0.48 kbps</th>
+            <th class='audio-cell'>VARSTok <br> @ 36.81Hz, 0.52 kbps</th>
+            <th class='audio-cell'>VARSTok <br> @ 30.95Hz, 0.43 kbps</th>
+            <th class='audio-cell'>VARSTok <br> @ 26.29Hz, 0.37 kbps</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例首行；其余行按同样格式补全即可 -->
+          <tr>
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo/gt/1089_134686_000003_000000.wav"></audio>
+                    </td>
+            
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo/bigcodec/1089_134686_000003_000000.wav"></audio>
+                    </td>
+            
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo/xcodec2/1089_134686_000003_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo/wavtokenizer_75/1089_134686_000003_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo/wavtokenizer_40/1089_134686_000003_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo/varstok_thres8/1089_134686_000003_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo/varstok_thres7/1089_134686_000003_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo/varstok_thres6/1089_134686_000003_000000.wav"></audio>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/gt/1089_134691_000042_000001.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/bigcodec/1089_134691_000042_000001.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/xcodec2/1089_134691_000042_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_75/1089_134691_000042_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_40/1089_134691_000042_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres8/1089_134691_000042_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres7/1089_134691_000042_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres6/1089_134691_000042_000001.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/gt/1284_1181_000040_000005.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/bigcodec/1284_1181_000040_000005.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/xcodec2/1284_1181_000040_000005.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_75/1284_1181_000040_000005.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_40/1284_1181_000040_000005.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres8/1284_1181_000040_000005.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres7/1284_1181_000040_000005.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres6/1284_1181_000040_000005.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/gt/1995_1837_000012_000001.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/bigcodec/1995_1837_000012_000001.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/xcodec2/1995_1837_000012_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_75/1995_1837_000012_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_40/1995_1837_000012_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres8/1995_1837_000012_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres7/1995_1837_000012_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres6/1995_1837_000012_000001.wav"></audio>
+                </td>
+            </tr>
+
+
+            <!-- <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/gt/1995_1837_000021_000001.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/bigcodec/1995_1837_000021_000001.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/xcodec2/1995_1837_000021_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_75/1995_1837_000021_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_40/1995_1837_000021_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres8/1995_1837_000021_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres7/1995_1837_000021_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres6/1995_1837_000021_000001.wav"></audio>
+                </td>
+            </tr> -->
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/gt/3570_5694_000004_000000.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/bigcodec/3570_5694_000004_000000.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/xcodec2/3570_5694_000004_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_75/3570_5694_000004_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_40/3570_5694_000004_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres8/3570_5694_000004_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres7/3570_5694_000004_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres6/3570_5694_000004_000000.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/gt/3575_170457_000046_000002.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/bigcodec/3575_170457_000046_000002.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/xcodec2/3575_170457_000046_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_75/3575_170457_000046_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/wavtokenizer_40/3575_170457_000046_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres8/3575_170457_000046_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres7/3575_170457_000046_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo/varstok_thres6/3575_170457_000046_000002.wav"></audio>
+                </td>
+            </tr>
+          <!-- … 其余 <tr> 保持相同结构 … -->
+        </tbody>
+      </table>
+      <!-- <hr><br><br> -->
+       <br><br>
+    </div>
+
+    <div class='inner text-center'>
+    <!-- <p style='color:black; font-family:Sans-Serif; font-size:32px;'>Experimental Results: Speech Reconstruction</p> -->
+    <p style='color:black; font-family:Sans-Serif; font-size:20px;'>Test‑Other Subset</p>
+
+    <div class='table-wrap'>
+      <table border='0' cellpadding='20' style='width:100%; table-layout:fixed;'>
+        <thead>
+          <tr>
+            <th class='audio-cell'>GroundTruth</th>
+            <th class='audio-cell'>BigCodec <br> @ 40Hz, 0.52 kbps</th>
+            <th class='audio-cell'>XCodec2.0 <br> @ 50Hz, 0.80 kbps</th>
+            <th class='audio-cell'>WavTokenizer <br> @ 75Hz, 0.90 kbps</th>
+            <th class='audio-cell'>WavTokenizer <br> @ 40Hz, 0.48 kbps</th>
+            <th class='audio-cell'>VARSTok <br> @ 36.81Hz, 0.52 kbps</th>
+            <th class='audio-cell'>VARSTok <br> @ 30.95Hz, 0.43 kbps</th>
+            <th class='audio-cell'>VARSTok <br> @ 26.29Hz, 0.37 kbps</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例首行；其余行按同样格式补全即可 -->
+          <tr>
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo_other/gt/7902_96591_000049_000000.wav"></audio>
+                    </td>
+            
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo_other/bigcodec/7902_96591_000049_000000.wav"></audio>
+                    </td>
+            
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo_other/xcodec2/7902_96591_000049_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo_other/wavtokenizer_75/7902_96591_000049_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo_other/wavtokenizer_40/7902_96591_000049_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo_other/varstok_thres8/7902_96591_000049_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo_other/varstok_thres7/7902_96591_000049_000000.wav"></audio>
+                    </td>
+
+                    <td class='audio-cell'>
+                    <audio controls><source src="sr_demo_other/varstok_thres6/7902_96591_000049_000000.wav"></audio>
+                    </td>
+                </tr>
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/gt/3005_163391_000011_000002.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/bigcodec/3005_163391_000011_000002.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/xcodec2/3005_163391_000011_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_75/3005_163391_000011_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_40/3005_163391_000011_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres8/3005_163391_000011_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres7/3005_163391_000011_000002.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres6/3005_163391_000011_000002.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/gt/3538_163624_000077_000000.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/bigcodec/3538_163624_000077_000000.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/xcodec2/3538_163624_000077_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_75/3538_163624_000077_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_40/3538_163624_000077_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres8/3538_163624_000077_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres7/3538_163624_000077_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres6/3538_163624_000077_000000.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/gt/5442_41169_000023_000001.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/bigcodec/5442_41169_000023_000001.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/xcodec2/5442_41169_000023_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_75/5442_41169_000023_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_40/5442_41169_000023_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres8/5442_41169_000023_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres7/5442_41169_000023_000001.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres6/5442_41169_000023_000001.wav"></audio>
+                </td>
+            </tr>
+
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/gt/6128_63240_000039_000003.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/bigcodec/6128_63240_000039_000003.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/xcodec2/6128_63240_000039_000003.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_75/6128_63240_000039_000003.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_40/6128_63240_000039_000003.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres8/6128_63240_000039_000003.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres7/6128_63240_000039_000003.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres6/6128_63240_000039_000003.wav"></audio>
+                </td>
+            </tr>
+
+            <!-- <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/gt/6432_63723_000005_000000.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/bigcodec/6432_63723_000005_000000.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/xcodec2/6432_63723_000005_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_75/6432_63723_000005_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_40/6432_63723_000005_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres8/6432_63723_000005_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres7/6432_63723_000005_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres6/6432_63723_000005_000000.wav"></audio>
+                </td>
+            </tr> -->
+
+            <tr>
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/gt/7902_96591_000049_000000.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/bigcodec/7902_96591_000049_000000.wav"></audio>
+                </td>
+        
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/xcodec2/7902_96591_000049_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_75/7902_96591_000049_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/wavtokenizer_40/7902_96591_000049_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres8/7902_96591_000049_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres7/7902_96591_000049_000000.wav"></audio>
+                </td>
+
+                <td class='audio-cell'>
+                <audio controls><source src="sr_demo_other/varstok_thres6/7902_96591_000049_000000.wav"></audio>
+                </td>
+            </tr>
+          <!-- … 其余 <tr> 保持相同结构 … -->
+        </tbody>
+      </table>
+      <hr><br><br>
+    </div>
+
+    <div class='inner text-center'>
+    <p style='color:black; font-family:Sans-Serif; font-size:32px;'>Experimental Results: TTS using a single AR Model</p>
+
+    <div class='table-wrap'>
+      <table border='0' cellpadding='20' style='width:100%; table-layout:fixed;'>
+        <thead>
+          <tr>
+            <th style=" background-color:white;position: sticky; top: 0; width: 20%; text-align: center; padding: 10px; color:black">Prompt Text</th>
+            <th class='audio-cell'>Prompt Speech</th>
+            <th class='audio-cell'>WavTokenizer @ 40Hz</th>
+            <th class='audio-cell'>VARSTok @ 36.81Hz</th>
+            <th class='audio-cell'>VARSTok @ 30.95Hz</th>
+            <th class='audio-cell'>VARSTok @ 26.29Hz</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- 示例首行；其余行按同样格式补全即可 -->
+         <tr>
+                <td style="width: 25%; text-align: center; padding: 10px; color:black">
+                    <p style="color:black; font-family:Comic Sans MS; font-size:15px;">The rain drops were still dripping and gleaming from the trees, flashing back the heavy yellow sunlight.</p>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/prompt/1995_1837_000020_000000-1995_1837_000012_000003.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                    <audio controls><source src="tts_demo/wavtokenizer_40Hz/1995_1837_000020_000000-1995_1837_000012_000003.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres08/1995_1837_000020_000000-1995_1837_000012_000003.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres07/1995_1837_000020_000000-1995_1837_000012_000003.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres06/1995_1837_000020_000000-1995_1837_000012_000003.wav"></audio>
+                </td>
+            </tr>
+
+            <!-- <tr>
+                <td style="width: 25%; text-align: center; padding: 10px; color:black">
+                    <p style="color:black; font-family:Comic Sans MS; font-size:15px;">He came down to her slowly, with fixed, hungry eyes, threading his way amid the Fleece.</p>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/prompt/1995_1837_000020_000000-1995_1837_000026_000002.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                    <audio controls><source src="tts_demo/wavtokenizer_40Hz/1995_1837_000020_000000-1995_1837_000026_000002.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres08/1995_1837_000020_000000-1995_1837_000026_000002.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres07/1995_1837_000020_000000-1995_1837_000026_000002.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres06/1995_1837_000020_000000-1995_1837_000026_000002.wav"></audio>
+                </td>
+            </tr> -->
+
+            <tr>
+                <td style="width: 25%; text-align: center; padding: 10px; color:black">
+                    <p style="color:black; font-family:Comic Sans MS; font-size:15px;">But the middle class wife still carries on the business of vicarious leisure, for the good name of the household and its master.</p>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/prompt/3570_5694_000009_000002-3570_5695_000001_000003.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                    <audio controls><source src="tts_demo/wavtokenizer_40Hz/3570_5694_000009_000002-3570_5695_000001_000003.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres08/3570_5694_000009_000002-3570_5695_000001_000003.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres07/3570_5694_000009_000002-3570_5695_000001_000003.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres06/3570_5694_000009_000002-3570_5695_000001_000003.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="width: 25%; text-align: center; padding: 10px; color:black">
+                    <p style="color:black; font-family:Comic Sans MS; font-size:15px;">This was why he held several long conferences with his friend Marshall, the manager at the mill.</p>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/prompt/6829_68771_000046_000000-6829_68771_000012_000002.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                    <audio controls><source src="tts_demo/wavtokenizer_40Hz/6829_68771_000046_000000-6829_68771_000012_000002.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres08/6829_68771_000046_000000-6829_68771_000012_000002.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres07/6829_68771_000046_000000-6829_68771_000012_000002.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres06/6829_68771_000046_000000-6829_68771_000012_000002.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="width: 25%; text-align: center; padding: 10px; color:black">
+                    <p style="color:black; font-family:Comic Sans MS; font-size:15px;">The chaos in which his ardour extinguished itself was a cold indifferent knowledge of himself.</p>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/prompt/1089_134686_000032_000008-1089_134686_000009_000003.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                    <audio controls><source src="tts_demo/wavtokenizer_40Hz/1089_134686_000032_000008-1089_134686_000009_000003.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres08/1089_134686_000032_000008-1089_134686_000009_000003.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres07/1089_134686_000032_000008-1089_134686_000009_000003.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres06/1089_134686_000032_000008-1089_134686_000009_000003.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="width: 25%; text-align: center; padding: 10px; color:black">
+                    <p style="color:black; font-family:Comic Sans MS; font-size:15px;">Yes, his mother was hostile to the idea, as he had read from her listless silence.</p>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/prompt/1089_134686_000032_000008-1089_134691_000004_000000.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                    <audio controls><source src="tts_demo/wavtokenizer_40Hz/1089_134686_000032_000008-1089_134691_000004_000000.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres08/1089_134686_000032_000008-1089_134691_000004_000000.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres07/1089_134686_000032_000008-1089_134691_000004_000000.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres06/1089_134686_000032_000008-1089_134691_000004_000000.wav"></audio>
+                </td>
+            </tr>
+
+            <tr>
+                <td style="width: 25%; text-align: center; padding: 10px; color:black">
+                    <p style="color:black; font-family:Comic Sans MS; font-size:15px;">Yes, but if she should have understood, and understood too well, she may talk.</p>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/prompt/7127_75946_000027_000000-7127_75947_000071_000000.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                    <audio controls><source src="tts_demo/wavtokenizer_40Hz/7127_75946_000027_000000-7127_75947_000071_000000.wav"></audio>
+                </td>
+        
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres08/7127_75946_000027_000000-7127_75947_000071_000000.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres07/7127_75946_000027_000000-7127_75947_000071_000000.wav"></audio>
+                </td>
+
+               <td class='audio-cell'>
+                <audio controls><source src="tts_demo/varstok_thres06/7127_75946_000027_000000-7127_75947_000071_000000.wav"></audio>
+                </td>
+            </tr>
+          <!-- … 其余 <tr> 保持相同结构 … -->
+        </tbody>
+      </table>
+      <br><br>
+    </div>
+
+  </div>
+
+  <!-- 原有脚本保持不变 -->
+  <script src='js/jquery.1.11.1.js'></script>
+  <script src='js/bootstrap.js'></script>
+  <script src='js/SmoothScroll.js'></script>
+  <script src='js/nivo-lightbox.js'></script>
+  <script src='js/jquery.isotope.js'></script>
+  <script src='js/jqBootstrapValidation.js'></script>
+  <script src='js/contact_me.js'></script>
+  <script src='js/main.js'></script>
+</body>
+</html>
